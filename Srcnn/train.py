@@ -9,10 +9,12 @@ from tqdm import tqdm
 from Srcnn.datasets import TrainDataset,EvalDataset
 from Srcnn.utils import AverageMeter,calc_psnr
 import re
+import matplotlib.pyplot as plt
 ############
 #TODO:以后这里会写一些命令行文件操作
 ############
 if __name__ == '__main__':
+    data_show=[]#构建一个用来画图的列表
     num_epochs=int(input('输入训练轮数：'))
     batch_size=int(input('输入批处理数量'))
     learning_rate=float(input('输入学习率'))
@@ -85,6 +87,7 @@ if __name__ == '__main__':
                 epoch_psnr.update(calc_psnr(preds, labels), len(inputs))
 
             print('eval psnr: {:.2f}'.format(epoch_psnr.avg))
+            data_show.append(epoch_psnr.avg)#画图data保存
 
             if epoch_psnr.avg > best_psnr:
                 best_epoch = epoch
@@ -93,3 +96,9 @@ if __name__ == '__main__':
 
     print('best epoch: {}, psnr: {:.2f}'.format(best_epoch, best_psnr))
     torch.save(best_weights, os.path.join(outputs_dir, 'best.pkl'))
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+    plt.plot(data_show)
+    plt.xlabel('epoch轮数')
+    plt.ylabel('PNSR（单位dB）')
+    plt.title('评估结果')
+    plt.show()
